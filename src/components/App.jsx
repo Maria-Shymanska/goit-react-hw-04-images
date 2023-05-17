@@ -9,7 +9,7 @@ import api from 'services/api';
 import { mapper } from 'helpers/mapper';
 
 export default function App() {
-  const [{ pictureName }, setPictureName] = useState('');
+  const [pictureName, setPictureName] = useState('');
   const [pictureData, setPictureData] = useState('');
   const [pictureModal, setPictureModal] = useState('');
   const [status, setStatus] = useState('');
