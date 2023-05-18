@@ -71,7 +71,6 @@ export default function App() {
       )}
       {status === 'pending' && <LoaderSpiner />}
       {isLoadingMore && <LoadMore onClick={loadMore} />}{' '}
-      {/* Corrected rendering of LoadMore component */}
       {pictureModal.length > 0 && (
         <Modal onClose={closeModal}>
           <img src={pictureModal} alt="" />
