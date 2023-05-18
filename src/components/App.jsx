@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import api from 'services/api';
 import { mapper } from 'helpers/mapper';
 
-export default function App() {
+function App() {
   const [pictureName, setPictureName] = useState('');
   const [pictureData, setPictureData] = useState([]);
   const [pictureModal, setPictureModal] = useState('');
@@ -23,36 +23,39 @@ export default function App() {
 
     setStatus('pending');
 
-    api
-      .fetchPicture(pictureName, page)
-      .then(res => {
+    const fetchPictureData = async () => {
+      try {
+        const res = await api.fetchPicture(pictureName, page);
         if (res.data.hits.length === 0) {
           toast.error('There is no picture for that name');
           setStatus(null);
+          setIsLoadingMore(false);
           return;
         }
 
-        setPictureData(state => [...state, ...mapper(res.data.hits)]);
+        setPictureData(prevData => [...prevData, ...mapper(res.data.hits)]);
         setStatus('resolved');
 
         const lengthData = (page - 1) * 12 + res.data.hits.length;
-        setIsLoadingMore(lengthData >= res.data.totalHits);
-      })
-      .catch(error => {
-        console.log(error);
-        setStatus('rejected');
-      });
-  }, [page, pictureName]);
 
-  const handleFormSubmit = pictureName => {
-    setPage(1);
-    setPictureName(pictureName);
+        setIsLoadingMore(lengthData < res.data.totalHits);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchPictureData();
+  }, [pictureName, page]);
+
+  const handleFormSubmit = name => {
+    setPictureName(name);
     setPictureData([]);
+    setPage(1);
     setIsLoadingMore(false);
   };
 
   const loadMore = () => {
-    setPage(page => page + 1);
+    setPage(prevPage => prevPage + 1);
   };
 
   const pictureModalClick = picture => {
@@ -70,7 +73,7 @@ export default function App() {
         <ImageGallery pictureData={pictureData} onClick={pictureModalClick} />
       )}
       {status === 'pending' && <LoaderSpiner />}
-      {isLoadingMore && <LoadMore onClick={loadMore} />}{' '}
+      {isLoadingMore && <LoadMore onClick={loadMore} />}
       {pictureModal.length > 0 && (
         <Modal onClose={closeModal}>
           <img src={pictureModal} alt="" />
@@ -79,3 +82,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
