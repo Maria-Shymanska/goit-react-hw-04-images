@@ -9,12 +9,12 @@ import api from 'services/api';
 import { mapper } from 'helpers/mapper';
 
 export default function App() {
-  const [{ pictureName }, setPictureName] = useState('');
-  const [pictureData, setPictureData] = useState('');
+  const [pictureName, setPictureName] = useState('');
+  const [pictureData, setPictureData] = useState([]);
   const [pictureModal, setPictureModal] = useState('');
   const [status, setStatus] = useState('');
-  const [page, setPage] = useState('');
-  const [IsLoadingMore, setIsLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   useEffect(() => {
     if (!pictureName) {
@@ -29,7 +29,6 @@ export default function App() {
         if (res.data.hits.length === 0) {
           toast.error('There is no picture for that name');
           setStatus(null);
-          setIsLoadingMore(false);
           return;
         }
 
@@ -37,24 +36,21 @@ export default function App() {
         setStatus('resolved');
 
         const lengthData = (page - 1) * 12 + res.data.hits.length;
-
-        if (lengthData >= res.data.totalHits) {
-          setIsLoadingMore(false);
-        } else {
-          setIsLoadingMore(true);
-        }
+        setIsLoadingMore(lengthData >= res.data.totalHits);
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error);
+        setStatus('rejected');
+      });
   }, [page, pictureName]);
 
   const handleFormSubmit = pictureName => {
     setPage(1);
-    setPictureName({ pictureName });
-    setPictureData('');
+    setPictureName(pictureName);
+    setPictureData([]);
     setIsLoadingMore(false);
   };
 
-  // function for uploading new photos
   const loadMore = () => {
     setPage(page => page + 1);
   };
@@ -71,13 +67,11 @@ export default function App() {
     <div>
       <Searchbar onSubmit={handleFormSubmit} />
       {pictureData.length > 0 && (
-        <ImageGallery
-          pictureData={pictureData}
-          onClick={pictureModalClick}
-        ></ImageGallery>
+        <ImageGallery pictureData={pictureData} onClick={pictureModalClick} />
       )}
       {status === 'pending' && <LoaderSpiner />}
-      {IsLoadingMore && <LoadMore onClick={loadMore} />}
+      {isLoadingMore && <LoadMore onClick={loadMore} />}{' '}
+      {/* Corrected rendering of LoadMore component */}
       {pictureModal.length > 0 && (
         <Modal onClose={closeModal}>
           <img src={pictureModal} alt="" />
