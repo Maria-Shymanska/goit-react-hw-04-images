@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import api from 'services/api';
 import { mapper } from 'helpers/mapper';
 
-function App() {
+export default function App() {
   const [pictureName, setPictureName] = useState('');
   const [pictureData, setPictureData] = useState([]);
   const [pictureModal, setPictureModal] = useState('');
@@ -82,5 +82,3 @@ function App() {
     </div>
   );
 }
-
-export default App;
